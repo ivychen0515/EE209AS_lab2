@@ -2,7 +2,7 @@
 
 #define LEFT 13           //D7
 #define RIGHT 12          //D6
-#define MANUAL 14      //D5
+#define MANUAL 14        //D5
 
 #define PHOTO_R A0
 #define SERVO 5
@@ -12,10 +12,10 @@ const short int LED_2 = 2;
 
 uint8_t LStatus = LOW;
 uint8_t RStatus = LOW;
-uint8_t ManualMode = LOW;
+uint8_t ManualMode = HIGH;
 
-int ini_light_val = 0;
-int curr_light_val = 0;
+float ini_light_val = 0;
+float curr_light_val = 0;
 int rotatePause = 200;
 
 uint8_t hitConfirm = 0;
@@ -45,7 +45,7 @@ void setup() {
   //Interrupts
   attachInterrupt(LEFT, LHighInterrupt, RISING);
   attachInterrupt(RIGHT, RHighInterrupt, RISING);
-  attachInterrupt(MANUAL, MHighInterrupt, RISING);
+  attachInterrupt(MANUAL, MLowInterrupt, FALLING);
   Serial.begin(9600);
 }
 
@@ -100,24 +100,32 @@ void RLowInterrupt() {
 
 //Interrupt for Manual Mode
 void MHighInterrupt() {     //this function get called when the Manuel signal Low->High
-  ManualMode = LOW;//turn led ON
+  ManualMode = HIGH;
   Serial.println("MPin is now High!!!");
   detachInterrupt(MANUAL);
   attachInterrupt(MANUAL, MLowInterrupt, FALLING);
 }
 
 void MLowInterrupt() {
-  ManualMode = HIGH;//turn led OFF
+  ManualMode = LOW;
   Serial.println("MPin is now Low!!!");
   detachInterrupt(MANUAL);
   attachInterrupt(MANUAL, MHighInterrupt, RISING);
 }
+
+
+
 void manualServo() {
+  Serial.println("NOW in Manual Mode !!!");
+  Serial.print(ini_light_val);
+  Serial.print("   ");
+  Serial.println(curr_light_val);
+  Serial.println(digitalRead(BUTTON));
   if (ini_light_val == 0) {
     ini_light_val = curr_light_val;
   }
 
-  else if (curr_light_val < 0.8 * ini_light_val) {
+  else if (curr_light_val < 0.75 * ini_light_val) {
     servo_hit_right();
   }
 
@@ -125,6 +133,8 @@ void manualServo() {
     servo_hit_left();
   }
 }
+
+
 
 
 void setLED() {
@@ -141,6 +151,7 @@ void loop() {
     manualServo();
   }
   else if (hitConfirm == 0) {
+    Serial.println(ManualMode);
     if (LStatus == HIGH) {
       servo_hit_left();
       hitConfirm = 1;
@@ -150,4 +161,5 @@ void loop() {
       hitConfirm = 1;
     }
   }
+  delay(200);
 }

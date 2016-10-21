@@ -12,7 +12,7 @@
 
 WiFiServer server(80); //Initialize the server on Port 80
 const short int LED_PIN = 2;
-const int high_low_pause = 50;
+const int high_low_pause = 200;
 String html;
 
 void setup() {
@@ -28,7 +28,7 @@ void setup() {
   WiFi.softAP("BattleShip", "12345678"); // Provide the (SSID, password); .
   server.begin(); // Start the HTTP Server
 
-  Serial.begin(115200); //Start communication between the ESP8266-12E and the monitor window
+  Serial.begin(9600); //Start communication between the ESP8266-12E and the monitor window
   IPAddress HTTPS_ServerIP = WiFi.softAPIP(); // Obtain the IP of the Server
   Serial.print("Server IP is: "); // Print the IP to the monitor window
   Serial.println(HTTPS_ServerIP);
@@ -37,12 +37,13 @@ void setup() {
   pinMode(LED_PIN, OUTPUT); //GPIO16 is an OUTPUT pin;
   pinMode(BUILTIN_LED, OUTPUT);
   digitalWrite(LED_PIN, LOW); //Initial state is ON
-  digitalWrite(DO, LOW); //Initial state 
-  digitalWrite(RE, LOW); //Initial state 
+  digitalWrite(DO, LOW); //Initial state
+  digitalWrite(RE, LOW); //Initial state
   digitalWrite(MI, LOW); //Initial state
   digitalWrite(FA, LOW); //Initial state
   digitalWrite(SO, LOW); //Initial state
   digitalWrite(LA, LOW); //Initial state
+  digitalWrite(MANUAL, HIGH); //Initial state
   digitalWrite(BUILTIN_LED, HIGH); //Initial sound state is OFF
 
   html = setupHtml();// Initial the HTML file
@@ -55,10 +56,10 @@ void loop() {
   wifiSetup();
 
   //Sent out the signal to slaves
-  Do();
-  delay(500);
-  Re();
-  delay(500);
+  //Do();
+  //delay(500);
+  //Re();
+  //delay(500);
 }
 
 
@@ -69,6 +70,7 @@ void Do() {
   delay(high_low_pause);
   digitalWrite(DO, LOW);
   digitalWrite(BUILTIN_LED, HIGH);
+  delay(high_low_pause);
 }
 
 void Re() {
@@ -77,6 +79,7 @@ void Re() {
   delay(high_low_pause);
   digitalWrite(RE, LOW);
   digitalWrite(BUILTIN_LED, HIGH);
+  delay(high_low_pause);
 }
 
 void Mi() {
@@ -85,6 +88,7 @@ void Mi() {
   delay(high_low_pause);
   digitalWrite(MI, LOW);
   digitalWrite(BUILTIN_LED, HIGH);
+  delay(high_low_pause);
 }
 
 void Fa() {
@@ -93,6 +97,7 @@ void Fa() {
   delay(high_low_pause);
   digitalWrite(FA, LOW);
   digitalWrite(BUILTIN_LED, HIGH);
+  delay(high_low_pause);
 }
 
 void So() {
@@ -101,6 +106,7 @@ void So() {
   delay(high_low_pause);
   digitalWrite(SO, LOW);
   digitalWrite(BUILTIN_LED, HIGH);
+  delay(high_low_pause);
 }
 
 void La() {
@@ -109,9 +115,10 @@ void La() {
   delay(high_low_pause);
   digitalWrite(LA, LOW);
   digitalWrite(BUILTIN_LED, HIGH);
+  delay(high_low_pause);
 }
 
-void playSound1(){
+void playSound1() {
   Do();
   Do();
   So();
@@ -119,7 +126,7 @@ void playSound1(){
   La();
   La();
   So();
-  delay(high_low_pause);
+  delay(300);
   Fa();
   Fa();
   Mi();
@@ -127,8 +134,67 @@ void playSound1(){
   Re();
   Re();
   Do();
-  delay(high_low_pause);
-  return;
+  delay(300);
+}
+
+void playSound2(){
+  Mi();
+  Mi();
+  Mi();
+  delay(300);
+  Mi();
+  Mi();
+  Mi();
+  delay(300);
+  Mi();
+  So();
+  Do();
+  Re();
+  Mi();
+  delay(300);
+  Fa();
+  Fa();
+  Fa();
+  Fa();
+  Fa();
+  Mi();
+  Mi();
+  delay(300);
+  Mi();
+  Re();
+  Re();
+  Mi();
+  Re();
+  delay(300);
+  So();
+  delay(300);
+  Mi();
+  Mi();
+  Mi();
+  delay(300);
+  Mi();
+  Mi();
+  Mi();
+  delay(300);
+  Mi();
+  So();
+  Do();
+  Re();
+  Mi();
+  delay(300);
+  Fa();
+  Fa();
+  Fa();
+  Fa();
+  Fa();
+  Mi();
+  Mi();
+  delay(300);
+  So();
+  So();
+  Fa();
+  Re();
+  Do();
 }
 
 void wifiSetup() {
@@ -155,7 +221,51 @@ void wifiSetup() {
     Serial.println("2");
     digitalWrite(LED_PIN, LOW);
     digitalWrite(MANUAL, LOW);
+
     playSound1();
+  }
+    else if (request.indexOf("/SECONDAUTO") != -1) {
+    Serial.println("21");
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(MANUAL, LOW);
+
+    playSound2();
+  }
+  else if (request.indexOf("/DO") != -1) {
+    Serial.println("3");
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(MANUAL, LOW);
+    Do();
+  }
+  else if (request.indexOf("/RE") != -1) {
+    Serial.println("4");
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(MANUAL, LOW);
+    Re();
+  }
+  else if (request.indexOf("/MI") != -1) {
+    Serial.println("5");
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(MANUAL, LOW);
+    Mi();
+  }
+  else if (request.indexOf("/FA") != -1) {
+    Serial.println("6");
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(MANUAL, LOW);
+    Fa();
+  }
+  else if (request.indexOf("/SO") != -1) {
+    Serial.println("7");
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(MANUAL, LOW);
+    So();
+  }
+  else if (request.indexOf("/LA") != -1) {
+    Serial.println("8");
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(MANUAL, LOW);
+    La();
   }
 
 
@@ -197,8 +307,15 @@ String setupHtml() {
   //s += "<input type =\"button\" name=\"b1\" value=\"Turn LED OFF\" onclick=\"location.href='/OFF'\">";
 
 
-  s += "<a href=\"/MANUALLY\" class=\"button green\">Manual On</a><br><br><br>";
-  s += "<a href=\"/AUTO\" class=\"button red\">AUTO</a>";
+  s += "<a href=\"/MANUALLY\" class=\"button green\">Manual Mode</a><br><br><br>";
+  s += "<a href=\"/DO\" class=\"button blue\">Play a Do~</a>";
+  s += "<a href=\"/RE\" class=\"button blue\">Play a Re~</a>";
+  s += "<a href=\"/MI\" class=\"button blue\">Play a Mi~</a>";
+  s += "<a href=\"/FA\" class=\"button blue\">Play a Fa~</a>";
+  s += "<a href=\"/SO\" class=\"button blue\">Play a So~</a>";
+  s += "<a href=\"/LA\" class=\"button blue\">Play a La~</a>";
+  s += "<br><br><br><a href=\"/AUTO\" class=\"button red\">Play a sound!</a>";
+  s += "<br><br><br><a href=\"/SECONDAUTO\" class=\"button red\">Play a second sound!</a>";
   s += "</html>\n";
 
   return s;
